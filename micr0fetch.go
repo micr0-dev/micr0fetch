@@ -129,8 +129,8 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
-		uptime = string(updata)
-		uptime = strings.Split(string("16:52  up 26 days,  4:30 , 2 users, load averages: 1.80 1.61 1.52"), "up")[1]
+		
+		uptime = strings.Split(string(updata), "up")[1]
 		uptimesplit := strings.Split(uptime, ",")
 		
 		extra := strings.Join(strings.Split(uptimesplit[0], "")[1:], "")
