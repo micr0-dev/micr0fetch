@@ -1,10 +1,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"math/rand"
 	"os/exec"
 	"strings"
-	"flag"
+	"time"
 )
 
 func main() {
@@ -13,6 +15,8 @@ func main() {
 	flag.StringVar(&colorchoice, "color", "", "override color (Red, Green, Yellow, Blue, Purple, Cyan, Grey, White)")
 
 	flag.Parse()
+
+	rand.Seed(time.Now().UnixNano())
 
 	// Detect Operating System
 	cmd := exec.Command("uname", "-s")
@@ -26,7 +30,7 @@ func main() {
 	var isMacOs bool
 
 	if strings.Contains(strings.ToLower(string(osname)), "darwin") {
-		isMacOs = true	
+		isMacOs = true
 	}
 
 	// Get kernel version (works on Both Mac and Linux)
@@ -41,8 +45,6 @@ func main() {
 	kernel := strings.ReplaceAll(string(kerneldata), "\n", "")
 
 	var operatingsys, architecture, host, uptime string
-
-	
 
 	if !isMacOs {
 		// Get Operating system, Architecture, Hostname, and Uptime (Linux only)
@@ -129,26 +131,25 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
-		
+
 		uptime = strings.Split(string(updata), "up")[1]
 		uptimesplit := strings.Split(uptime, ",")
-		
+
 		extra := strings.Join(strings.Split(uptimesplit[0], "")[1:], "")
 		if strings.Contains(uptimesplit[1], "hrs") {
 			hours := strings.Split(strings.ReplaceAll(uptimesplit[1], " ", ""), "hrs")[0]
-			uptime = string(extra +", "+ hours + " hours")
+			uptime = string(extra + ", " + hours + " hours")
 		} else {
-			uptimesplit = strings.Split(uptimesplit[len(uptimesplit)-3],":")
+			uptimesplit = strings.Split(uptimesplit[len(uptimesplit)-3], ":")
 			minutes := uptimesplit[1]
 			uptimesplit = strings.Split(uptimesplit[0], " ")
 			hours := uptimesplit[len(uptimesplit)-1]
 
-			uptime = strings.ReplaceAll(string(extra +", "+ hours + " hours, " + minutes + " minutes"), " 0", " ")
+			uptime = strings.ReplaceAll(string(extra+", "+hours+" hours, "+minutes+" minutes"), " 0", " ")
 		}
-	
 
 	}
-	
+
 	// Get Active user (Both Mac and Linux)
 	cmd = exec.Command("id", "-u", "-n")
 	userdata, err := cmd.Output()
@@ -162,24 +163,27 @@ func main() {
 
 	var color string
 
-	if colorchoice != "" {
+	if operatingsys == "amogos" || colorchoice == "amogus" {
+		colors := [8]string{"red", "green", "yellow", "blue", "purple", "cyan", "gray", "white"}
+		color = getColor(colors[rand.Intn(len(colors))])
+	} else if colorchoice != "" {
 		color = getColor(colorchoice)
 	} else {
 		color = getColor(operatingsys)
 	}
-	
+
 	var iconSplit []string
-	
+
 	if iconchoice != "" {
-		iconSplit = strings.Split(getIcon(iconchoice,color), "\n")
+		iconSplit = strings.Split(getIcon(iconchoice, color), "\n")
 	} else {
-		iconSplit = strings.Split(getIcon(operatingsys,color), "\n")
+		iconSplit = strings.Split(getIcon(operatingsys, color), "\n")
 	}
 
-	fmt.Println(color+iconSplit[1] + colorReset + "  "+ color + string(user) + colorReset + "@" + color + string(host) + colorReset)
-	fmt.Println(color+iconSplit[2] + "  " + "os     " + colorReset + string(operatingsys) + " " + string(architecture))
-	fmt.Println(color+iconSplit[3] + "  " + "kernel " + colorReset + string(kernel))
-	fmt.Println(color+iconSplit[4] + "  " + "uptime " + colorReset + string(uptime))
+	fmt.Println(color + iconSplit[1] + colorReset + "  " + color + string(user) + colorReset + "@" + color + string(host) + colorReset)
+	fmt.Println(color + iconSplit[2] + "  " + "os     " + colorReset + string(operatingsys) + " " + string(architecture))
+	fmt.Println(color + iconSplit[3] + "  " + "kernel " + colorReset + string(kernel))
+	fmt.Println(color + iconSplit[4] + "  " + "uptime " + colorReset + string(uptime))
 }
 
 func getIcon(distro string, color string) string {
@@ -195,7 +199,7 @@ func getIcon(distro string, color string) string {
 		return `
  ,-O 
 O(_))
- `+"`"+`-O 
+ ` + "`" + `-O 
      `
 	case "manjaro":
 		return `
@@ -205,10 +209,61 @@ O(_))
 |_|_|_|`
 	case "macos":
 		return `
- _`+"\033[32mQ"+color+`_ 
+ _` + "\033[32mQ" + color + `_ 
 /   (
 \___/
      
+`
+	case "fedora":
+		return `
+  (‾)
+ _|_ 
+  |  
+(_)  `
+	case "debian":
+		return `
+ __ 
+( c)
+ \. 
+     `
+	case "gentoo":
+		return `
+/‾‾‾‾‾\
+\ o   /
+/    / 
+‾‾‾‾‾  `
+	case "chromeos":
+		return `
+ ` + "\033[31m,-,_" + color + `
+` + "\033[32m\\" + "\033[34m(O)" + "\033[33m)" + color + `
+ ` + "\033[32m`-" + "\033[33m/" + color + ` 
+`
+	case "amogos":
+		return `
+    
+  ඞ 
+    
+    `
+
+	case "raspbian":
+		return `
+ ` + "\033[32m\\/ " + color + `
+()()
+ () 
+    `
+	case "opensuse":
+		return `
+,__ 
+‾  o\
+_ \_,
+‾‾‾ 
+`
+	case "slackware":
+		return `
+ ╔═╗
+ ╚═╗
+|╚═╝
+` + "`" + `‾‾‾
 `
 	}
 	return `
@@ -216,6 +271,7 @@ O(_))
   oo| 
  /` + "`" + `'\ 
 (\_;/)`
+
 }
 
 func getColor(distro string) string {
@@ -233,7 +289,7 @@ func getColor(distro string) string {
 		return "\033[35m"
 	case "cyan":
 		return "\033[36m"
-	case "grey":
+	case "gray":
 		return "\033[90m"
 	case "white":
 		return "\033[37m"
@@ -245,6 +301,20 @@ func getColor(distro string) string {
 		return "\033[32m"
 	case "macos":
 		return "\033[31m"
+	case "fedora":
+		return "\033[34m"
+	case "debian":
+		return "\033[31m"
+	case "gentoo":
+		return "\033[35m"
+	case "chromeos":
+		return "\033[32m"
+	case "raspbian":
+		return "\033[31m"
+	case "opensuse":
+		return "\033[32m"
+	case "slackware":
+		return "\033[37m"
 	}
 	return "\033[33m"
 }
