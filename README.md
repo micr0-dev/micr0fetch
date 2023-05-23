@@ -4,9 +4,11 @@
 A simple system information fetching tool written in go. To request support for a distro open an issue with the 'distro request' label.
 
 # installation.
-Go to the [releases](https://github.com/MiraslauKavaliou/micr0fetch/releases) tab and find the one that suits your system. Running the file after giving it exec permission with `chmod +x`
+### Arch
+via [Arch User Repository](https://aur.archlinux.org/packages/micr0fetch): `yay -S micr0fetch`
 
-I am working on adding it to the Arch User Repository for ease of use. 
+### Other Distros and MacOs
+Go to the [releases](https://github.com/MiraslauKavaliou/micr0fetch/releases) tab and find the binary that suits your system (x86, arm64, etc.). Run the file after giving it execution permissions with `chmod +x`
 
 #### Note: Windows is not supported
 
