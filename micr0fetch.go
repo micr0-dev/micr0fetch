@@ -60,6 +60,7 @@ func main() {
 
 		operatingsys = strings.ReplaceAll(string(operatingsysdata), "Operating System: ", "")
 		operatingsys = strings.ReplaceAll(operatingsys, "\n", "")
+		operatingsys = strings.TrimSpace(operatingsys)
 
 		txtcmd = "hostnamectl | grep \"Architecture\""
 		cmd = exec.Command("bash", "-c", txtcmd)
@@ -72,7 +73,7 @@ func main() {
 
 		architecture = strings.ReplaceAll(string(architecturedata), "Architecture: ", "")
 		architecture = strings.ReplaceAll(architecture, "\n", "")
-		architecture = strings.ReplaceAll(architecture, " ", "")
+		architecture = strings.TrimSpace(architecture)
 
 		txtcmd = "hostnamectl | grep \"Static hostname\""
 		cmd = exec.Command("bash", "-c", txtcmd)
@@ -86,7 +87,7 @@ func main() {
 
 		host = strings.ReplaceAll(string(hostdata), "Static hostname: ", "")
 		host = strings.ReplaceAll(host, "\n", "")
-		host = strings.ReplaceAll(host, " ", "")
+		host = strings.TrimSpace(host)
 
 		cmd = exec.Command("uptime", "-p")
 
@@ -99,6 +100,7 @@ func main() {
 
 		uptime = strings.ReplaceAll(string(updata), "up ", "")
 		uptime = strings.ReplaceAll(uptime, "\n", "")
+		uptime = strings.TrimSpace(uptime)
 	} else {
 		// Get Operating system, Architecture, Hostname, and Uptime (Mac only)
 
@@ -123,6 +125,7 @@ func main() {
 		}
 
 		host = strings.ReplaceAll(string(hostdata), "\n", "")
+		host = strings.TrimSpace(host)
 
 		cmd = exec.Command("uptime")
 		updata, err := cmd.Output()
@@ -158,6 +161,7 @@ func main() {
 		return
 	}
 	user := strings.ReplaceAll(string(userdata), "\n", "")
+	user = strings.TrimSpace(user)
 
 	colorReset := "\033[0m"
 
