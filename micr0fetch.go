@@ -9,7 +9,34 @@ import (
 	"time"
 )
 
+// Helper function to run command and return trimmed output string
+func runCmd(command string, args ...string) (string, error) {
+	cmd := exec.Command(command, args...)
+	data, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(data)), nil
+}
+
+// Helper function to extract value from hostnamectl output
+func extractHostnameCtlValue(field string) (string, error) {
+	txtcmd := fmt.Sprintf("hostnamectl | grep \"%s\"", field)
+	data, err := runCmd("bash", "-c", txtcmd)
+	if err != nil {
+		return "", err
+	}
+	// Replace field name and remove leading and trailing white spaces
+	return strings.TrimSpace(strings.ReplaceAll(data, field+":", "")), nil
+}
+
 func main() {
+	if err := run(); err != nil {
+		fmt.Println("Error:", err)
+	}
+}
+
+func run() error {
 	var iconchoice, colorchoice string
 	flag.StringVar(&iconchoice, "icon", "", "override icon (Arch, Ubuntu, Manjaro, MacOs, Linux)")
 	flag.StringVar(&colorchoice, "color", "", "override color (Red, Green, Yellow, Blue, Purple, Cyan, Grey, White)")
@@ -19,123 +46,68 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	// Detect Operating System
-	cmd := exec.Command("uname", "-s")
-	osname, err := cmd.Output()
-
+	osname, err := runCmd("uname", "-s")
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
 
 	var isMacOs bool
 
-	if strings.Contains(strings.ToLower(string(osname)), "darwin") {
+	if strings.Contains(strings.ToLower(osname), "darwin") {
 		isMacOs = true
 	}
 
 	// Get kernel version (works on Both Mac and Linux)
-
-	cmd = exec.Command("uname", "-r")
-	kerneldata, err := cmd.Output()
-
+	kernel, err := runCmd("uname", "-r")
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
-	kernel := strings.ReplaceAll(string(kerneldata), "\n", "")
 
 	var operatingsys, architecture, host, uptime string
 
 	if !isMacOs {
 		// Get Operating system, Architecture, Hostname, and Uptime (Linux only)
-
-		txtcmd := "hostnamectl | grep \"Operating System\""
-		cmd = exec.Command("bash", "-c", txtcmd)
-		operatingsysdata, err := cmd.Output()
-
+		operatingsys, err = extractHostnameCtlValue("Operating System")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		operatingsys = strings.ReplaceAll(string(operatingsysdata), "Operating System: ", "")
-		operatingsys = strings.ReplaceAll(operatingsys, "\n", "")
-		operatingsys = strings.TrimSpace(operatingsys)
-
-		txtcmd = "hostnamectl | grep \"Architecture\""
-		cmd = exec.Command("bash", "-c", txtcmd)
-		architecturedata, err := cmd.Output()
-
+		architecture, err = extractHostnameCtlValue("Architecture")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		architecture = strings.ReplaceAll(string(architecturedata), "Architecture: ", "")
-		architecture = strings.ReplaceAll(architecture, "\n", "")
-		architecture = strings.TrimSpace(architecture)
-
-		txtcmd = "hostnamectl | grep \"Static hostname\""
-		cmd = exec.Command("bash", "-c", txtcmd)
-
-		hostdata, err := cmd.Output()
-
+		host, err = extractHostnameCtlValue("Static hostname")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		host = strings.ReplaceAll(string(hostdata), "Static hostname: ", "")
-		host = strings.ReplaceAll(host, "\n", "")
-		host = strings.TrimSpace(host)
-
-		cmd = exec.Command("uptime", "-p")
-
-		updata, err := cmd.Output()
-
+		uptime, err = runCmd("uptime", "-p")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		uptime = strings.ReplaceAll(string(updata), "up ", "")
-		uptime = strings.ReplaceAll(uptime, "\n", "")
-		uptime = strings.TrimSpace(uptime)
+		uptime = strings.ReplaceAll(uptime, "up ", "")
 	} else {
 		// Get Operating system, Architecture, Hostname, and Uptime (Mac only)
-
 		operatingsys = "macOS"
 
-		cmd = exec.Command("uname", "-m")
-		architecturedata, err := cmd.Output()
-
+		architecture, err = runCmd("uname", "-m")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		architecture = strings.ReplaceAll(string(architecturedata), "\n", "")
-
-		cmd = exec.Command("uname", "-n")
-		hostdata, err := cmd.Output()
-
+		host, err = runCmd("uname", "-n")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		host = strings.ReplaceAll(string(hostdata), "\n", "")
-		host = strings.TrimSpace(host)
-
-		cmd = exec.Command("uptime")
-		updata, err := cmd.Output()
-
+		uptime, err = runCmd("uptime")
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err
 		}
 
-		uptime = strings.Split(string(updata), "up")[1]
+		uptime = strings.Split(uptime, "up")[1]
 		uptimesplit := strings.Split(uptime, ",")
 
 		extra := strings.Join(strings.Split(uptimesplit[0], "")[1:], "")
@@ -154,14 +126,10 @@ func main() {
 	}
 
 	// Get Active user (Both Mac and Linux)
-	cmd = exec.Command("id", "-u", "-n")
-	userdata, err := cmd.Output()
+	user, err := runCmd("id", "-u", "-n")
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
-	user := strings.ReplaceAll(string(userdata), "\n", "")
-	user = strings.TrimSpace(user)
 
 	colorReset := "\033[0m"
 
@@ -188,6 +156,8 @@ func main() {
 	fmt.Println(color + iconSplit[2] + "  " + "os     " + colorReset + string(operatingsys) + " " + string(architecture))
 	fmt.Println(color + iconSplit[3] + "  " + "kernel " + colorReset + string(kernel))
 	fmt.Println(color + iconSplit[4] + "  " + "uptime " + colorReset + string(uptime))
+
+	return nil
 }
 
 func getIcon(distro string, color string) string {
@@ -229,7 +199,7 @@ O(_))
  __ 
 ( c)
  \. 
-     `
+    `
 	case "gentoo":
 		return `
 /‾‾‾‾‾\
