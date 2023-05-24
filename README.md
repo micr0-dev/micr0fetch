@@ -15,4 +15,6 @@ Go to the [releases](https://github.com/MiraslauKavaliou/micr0fetch/releases) ta
 # screenshots.
 ![Screenshot from 2023-05-19 15-21-57](https://github.com/MiraslauKavaliou/micr0fetch/assets/26364458/c2235fdb-75f9-404e-a55d-cfb712add354)
 <img width="566" alt="Screenshot_2023-05-19_at_3 25 07_PM" src="https://github.com/MiraslauKavaliou/micr0fetch/assets/26364458/f40c595f-e2ba-40e3-aee6-3f356ded3064">
+![Screenshot from 2023-05-23 22-43-52](https://github.com/MiraslauKavaliou/micr0fetch/assets/26364458/d39449d8-3d65-41f4-9c7d-d60cc713bfae)
+![Screenshot from 2023-05-23 22-40-36](https://github.com/MiraslauKavaliou/micr0fetch/assets/26364458/37ee9ed5-9a06-4669-8627-ad7d12adf3f5)
 <img width="732" alt="Screen Shot 2022-05-11 at 5 28 40 PM" src="https://user-images.githubusercontent.com/26364458/167950933-0b868114-28b0-4782-82e1-86561b7af9e1.png">
