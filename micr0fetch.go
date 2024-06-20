@@ -82,6 +82,13 @@ func run() error {
 			return err
 		}
 
+		if host == "(unset)" {
+			host, err = runCmd("uname", "-n")
+			if err != nil {
+				return err
+			}
+		}
+
 		uptime, err = runCmd("uptime", "-p")
 		if err != nil {
 			return err
